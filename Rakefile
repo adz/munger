@@ -4,21 +4,7 @@ require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'spec/rake/spectask'
 
-spec = Gem::Specification.new do |s|
-    s.platform  =   Gem::Platform::RUBY
-    s.name      =   "munger"
-    s.version   =   "0.1.3"
-    s.author    =   "Scott Chacon"
-    s.email     =   "schacon@gmail.com"
-    s.summary   =   "A reporting engine in Ruby"
-    s.files     =   FileList['lib/**/*', 'spec/**/*'].to_a
-
-    s.homepage = "http://github/schacon/munger"
-
-    s.require_path  =   "lib"
-    s.test_files = Dir.glob('spec/*.rb')
-    s.has_rdoc  =   true
-end
+spec = eval(File.new('munger.gemspec','r').read)
 
 Rake::GemPackageTask.new(spec) do |pkg|
     pkg.need_tar = true

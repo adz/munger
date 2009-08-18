@@ -137,10 +137,17 @@ describe Munger::Report do
   end
 
   it "should be able to style columns"
-  
+    
   it "should be able to attach formatting independent of content"
   # so can format numbers without hurting ability to aggregate correctly
   # or add hyperlinks using data from columns not being shown
+
+  it "should be able to add and retrieve column formatters" do
+    @report.column_formatters = {:name => :to_s}
+    @report.process
+    @report.column_formatters.should have(1).item
+    @report.column_formatter(:name).should eql(:to_s)
+  end
   
   it "should be able to aggregate rows into new column"
   

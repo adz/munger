@@ -1,6 +1,6 @@
 require 'builder'
-module Munger #:nodoc:
-  module Render #:nodoc:
+module Munger  #:nodoc:
+  module Render  #:nodoc:
     # Render a table that lets the user sort the columns
     class SortableHtml
     
@@ -87,7 +87,8 @@ module Munger #:nodoc:
                     col_data = row[:data] #[column]
                     if formatter && col_data[column]
                       formatted = if formatter.class == Proc
-                        formatter.call(col_data.data)
+                        data = col_data.respond_to?(:data) ? col_data.data : col_data
+                        formatter.call(data)
                       elsif col_data[column].respond_to? formatter
                         col_data[column].send(formatter, *args)
                       elsif

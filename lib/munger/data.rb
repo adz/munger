@@ -51,7 +51,7 @@ module Munger #:nodoc:
       default = options[:default] || nil
       @data.each_with_index do |row, index|
         if block_given?
-          col_data = yield Item.ensure(row)
+          col_data = yield clean_data(row)
         else
           col_data = default
         end
@@ -63,7 +63,7 @@ module Munger #:nodoc:
         else
           row[names] = col_data
         end
-        @data[index] = Item.ensure(row)
+        @data[index] = clean_data(row)
       end
     end
     alias :add_columns :add_column
@@ -206,7 +206,9 @@ module Munger #:nodoc:
     def valid?
       if ((@data.size > 0) &&
         (@data.respond_to? :each_with_index) &&
-        (@data.first.respond_to? :keys)) &&
+        (@data.first.respond_to?(:keys) || 
+         @data.first.respond_to?(:attributes) || 
+         @data.first.is_a?(Munger::Item))) &&
         (!@data.first.is_a? String)
         return true
       else
@@ -216,7 +218,7 @@ module Munger #:nodoc:
       false
     end
 
-    # cols is an array of column names, if given the nested arrays are built in this order
+    # cols is an array of column names, if given, the nested arrays are built in this order
     def to_a(cols=nil)
       array = []
       cols ||= self.columns
