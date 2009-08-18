@@ -26,12 +26,8 @@ module Munger #:nodoc:
         x = Builder::XmlMarkup.new
         
         x.table(:class => @classes[:table]) do
-          
-          x.tr do
-            @report.columns.each do |column|
-              x.th(:class => 'columnTitle') { x << @report.column_title(column) }
-            end
-          end
+
+          render_column_header_row(x) unless @report.subgroup.nil?
           
           @report.process_data.each do |row|
             
@@ -52,6 +48,8 @@ module Munger #:nodoc:
               if row[:meta][:group_header]
                 header = row[:meta][:group_value].to_s
                 x.th(:colspan => @report.columns.size) { x << header }
+                render_column_header_row(x) if row[:meta][:group_header] == @report.subgroup.size
+
               else 
                 @report.columns.each do |column|
                 
@@ -65,6 +63,7 @@ module Munger #:nodoc:
                 
                   x.td(cell_attrib) { x << row[:data][column].to_s }
                 end
+
               end
             end
           end
@@ -83,7 +82,15 @@ module Munger #:nodoc:
       def valid?
         @report.is_a? Munger::Report
       end
-    
+
+      private
+      def render_column_header_row(x)
+        x.tr do
+          @report.columns.each do |column|
+            x.th(:class => 'columnTitle') { x << @report.column_title(column) }
+          end
+        end
+      end
     end
   end
 end
