@@ -27,7 +27,8 @@ module Munger  #:nodoc:
         
         x.table(:class => @classes[:table]) do
 
-          render_column_header_row(x) unless @report.subgroup.nil?
+          render_column_header_row(x) if @report.subgroup.nil? || @report.subgroup.size == 0
+          #render_column_header_row(x)
           
           @report.process_data.each do |row|
             
