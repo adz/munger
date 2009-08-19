@@ -27,8 +27,7 @@ module Munger  #:nodoc:
         
         x.table(:class => @classes[:table]) do
 
-          render_column_header_row(x) if @report.subgroup.nil? || @report.subgroup.size == 0
-          #render_column_header_row(x)
+          render_column_header_row(x)
           
           @report.process_data.each do |row|
             
@@ -47,9 +46,18 @@ module Munger  #:nodoc:
             
             x.tr(row_attrib) do
               if row[:meta][:group_header]
-                header = @report.column_title(row[:meta][:group_name]) + ' : ' + row[:meta][:group_value].to_s
-                x.th(:colspan => @report.columns.size) { x << header }
-                render_column_header_row(x) if row[:meta][:group_header] == @report.subgroup.size
+                #header = @report.column_title(row[:meta][:group_name]) + ' : ' + row[:meta][:group_value].to_s
+                
+                #x.th(:colspan => @report.columns.size) { x << header }
+                @report.columns.each do |column|
+                  x.th do
+                    x << if column == row[:meta][:group_name]
+                      row[:meta][:group_value].to_s
+                    else
+                      "&nbsp;"
+                    end
+                  end
+                end
 
               else 
                 @report.columns.each do |column|
