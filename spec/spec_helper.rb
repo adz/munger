@@ -5,6 +5,7 @@ require 'spec'
 require 'fileutils'
 require 'logger'
 require 'pp'
+require 'date'
 
 require 'rspec_hpricot_matchers'
 Spec::Runner.configure do |config|
@@ -22,7 +23,7 @@ module MungerSpecHelper
      {:name => 'Scott', :age => 23, :day => 1, :score => 31},
      {:name => 'Alice', :age => 33, :day => 1, :score => 12},
      {:name => 'Alice', :age => 34, :day => 2, :score => 12},
-     {:name => 'Alice', :age => 33, :day => 2, :score => 12},
+     {:name => 'Alice', :age => 33, :day => 2, :score => 12}
       ]
   end
   
