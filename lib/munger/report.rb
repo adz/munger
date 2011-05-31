@@ -340,7 +340,7 @@ module Munger #:nodoc:
               break if compare != 0
             end
           end
-          compare
+          compare || -1  # nil always fucks it up
         end
       end
     
