@@ -330,13 +330,14 @@ module Munger #:nodoc:
             elsif sorting.is_a? Array
               key = sorting[0]
               func = sorting[1]
-              if func == :asc
-                compare = a[key] <=> b[key]
+              
+              compare = if func == :asc
+                a[key] <=> b[key]
               elsif func == :desc
-                compare = b[key] <=> a[key]
+                b[key] <=> a[key]
               elsif func.is_a? Proc
-                compare = func.call(a[key], b[key])
-              end
+                func.call(a[key], b[key])
+              end 
               break if compare != 0
             end
           end
