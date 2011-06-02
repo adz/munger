@@ -92,7 +92,9 @@ module Munger #:nodoc:
       @data = new_data
     end
     
-    # group the data like sql
+    # Group the data like sql
+    # 
+    # Returns columns of new data
     def group(groups, agg_hash = {})
       data_hash = {}
       

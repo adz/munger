@@ -187,7 +187,7 @@ module Munger #:nodoc:
         return false if !@aggregate
         return false if !@aggregate.is_a? Hash
         
-        totals = {}        
+        totals = {}
         
         @process_data.each_with_index do |row, index|
           if row[:meta][:data]
@@ -221,6 +221,7 @@ module Munger #:nodoc:
             total_row[:data][column] = calculate_aggregate(type, data)
           end
         end
+
         @process_data << total_row
         
       end
