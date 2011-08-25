@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
     s.platform  =  Gem::Platform::RUBY
-    s.name      =  "elskwid-munger"
+    s.name      =  "adz-munger"
     s.version   =  "0.1.4.4"
-    s.authors   =  ['Scott Chacon', 'Brandon Mitchell', 'Don Morrison', 'Eric Lindvall']
-    s.email     =  "elskwid@gmail.com"
-    s.summary   =  "A reporting engine in Ruby - the elskwid fork!"
-    s.homepage  =  "http://github.com/elskwid/munger"
+    s.authors   =  ['Scott Chacon', 'Brandon Mitchell', 'Don Morrison', 'Eric Lindvall', 'Adam Davies']
+    s.email     =  "support@36zeroes.com.au"
+    s.summary   =  "A reporting engine in Ruby - the adz / elskwid fork!"
+    s.homepage  =  "http://github.com/adz/munger"
     s.has_rdoc  =  true
     s.files = ["munger.gemspec",
                "Rakefile",
