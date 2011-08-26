@@ -33,4 +33,13 @@ Gem::Specification.new do |s|
                "spec/munger/render/csv_spec.rb",
                "spec/munger/render/html_spec.rb",
                "spec/munger/render/text_spec.rb"]
+
+   s.add_dependency 'builder'
+
+   s.add_development_dependency 'rake', '~> 0.9'
+   s.add_development_dependency 'rspec', '~> 2'
+   s.add_development_dependency 'rcov'
+   s.add_development_dependency 'diff-lcs'
+   s.add_development_dependency 'hpricot'
+   s.add_development_dependency 'rspec_hpricot_matchers'
 end

@@ -11,6 +11,16 @@ require 'munger/render/html'
 require 'munger/render/sortable_html'
 require 'munger/render/text'
 
+# Patch in :blank? if not there... 
+# to avoid ActionSupport dependency and stay compatible with rails 2 and 3
+if !Object.new.respond_to?(:blank?)
+  class Object
+    def blank?
+      respond_to?(:empty?) ? empty? : !self
+    end
+  end
+end
+
 module Munger
   VERSION = '0.1.3'
 end
