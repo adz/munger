@@ -228,9 +228,12 @@ module Munger #:nodoc:
       new_keys.compact
     end
     
-    def pivot(columns, rows, value, aggregation = :sum)
-      data_hash = {}
+    def pivot(columns, rows, value, aggregation = :sum, column_lambda = nil)
       
+      # keys: row_key  which is values in the row
+      # 
+      # 
+      data_hash = {}     
       @data.each do |row|
         column_key = Data.array(columns).map { |rk| row[rk] }
         row_key = Data.array(rows).map { |rk| row[rk] }
@@ -245,29 +248,38 @@ module Munger #:nodoc:
       end
       
       new_data = []
-      new_keys = {}
+      new_keys = []
       
       data_hash.each do |row_key, row_hash|
         new_row = {}
+        
+        row_index = 0
         row_hash.each do |column_key, row_data|
+          row_index += 1
           column_key.each do |ckey|
+            
+            column_title = column_lambda ? column_lambda.call(row_data[:data], row_index) : ckey
+            new_keys << column_title
+            
             new_row.merge!(row_data[:data])
-            case aggregation
-            when :average
-              new_row[ckey] = (row_data[:sum] / row_data[:count])
-            when :count
-              new_row[ckey] = row_data[:count]
-            else            
-              new_row[ckey] = row_data[:sum]
-            end
-            new_keys[ckey] = true
+            new_row[column_title] = 
+              case aggregation
+              when :average
+                (row_data[:sum] / row_data[:count])
+              when :count
+                row_data[:count]
+              else            
+                row_data[:sum]
+              end
           end
         end
+        
         new_data << Item.ensure(new_row)
       end
       
       @data = new_data
-      new_keys.keys
+      
+      new_keys  # TODO: why not return indexed?
     end
     
     def self.array(string_or_array)

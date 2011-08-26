@@ -131,6 +131,15 @@ describe Munger::Data do
     scott[1].should eql(43)
   end
 
+  it "should be able to pivot the data (1 column) and rename the pivoted column" do
+    orig_size = @data.size
+    new_keys = @data.pivot(:day, :name, :score, :sum, proc{|row, index| "Day#{index}"})
+    @data.size.should < orig_size
+    new_keys.should include("Day1", "Day2")
+    scott = @data.data.select { |r| r.name == 'Scott' }.first
+    scott['Day1'].should eql(43)
+  end
+
   it "should be able to pivot the data with average aggregation" do
     new_keys = @data.pivot(:day, :name, :score, :average)
     new_keys.should include(1, 2)
