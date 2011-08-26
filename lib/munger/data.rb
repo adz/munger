@@ -164,21 +164,21 @@ module Munger #:nodoc:
     
     # Group the data like sql
     # 
-    # Note: 
-    # Field values for non-grouped columns will be the last row iterated on
+    # group_cols Which columns to group on
+    # agg_hash   A hash of aggregate functions to columns.  This format:
+    #   {aggregate_type => cols, ...}
+    #   
+    # Note:
+    #  - On aggregate_type 
+    #    - It can be a symbol, or an array [:prefix, proc]
+    #    - It is prepended to new columns for generated aggregate values
     # 
+    #  - Field values for non-grouped columns will be the last row iterated on
+    #  
     # Returns columns of new data
     def group(group_cols, agg_hash = {})
       
-      # Agg columns come from values in agg_hash
-      agg_columns = []
-      agg_hash.each do |key, columns|
-        Data.array(columns).each do |col|  # column name
-          agg_columns << col
-        end
-      end
-      agg_columns = agg_columns.uniq.compact
-      
+      agg_columns = agg_hash.values.flatten.uniq.compact
       aggregate_group = AggregateGrouping.new(group_cols, agg_columns)
       
       # Build aggregate into aggregate_group for each row
@@ -217,15 +217,12 @@ module Munger #:nodoc:
                 end
             end
             
-            new_keys << newcol
-            
+            new_keys << newcol            
           end
         end
         
-        new_data << Item.ensure(new_row)
-        
-      end
-    
+        new_data << Item.ensure(new_row)        
+      end    
       
       @data = new_data
       new_keys.compact
@@ -237,8 +234,10 @@ module Munger #:nodoc:
       @data.each do |row|
         column_key = Data.array(columns).map { |rk| row[rk] }
         row_key = Data.array(rows).map { |rk| row[rk] }
+        
         data_hash[row_key] ||= {}
         data_hash[row_key][column_key] ||= {:sum => 0, :data => {}, :count => 0}
+        
         focus = data_hash[row_key][column_key]
         focus[:data] = clean_data(row)
         focus[:count] += 1
