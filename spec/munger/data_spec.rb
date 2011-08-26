@@ -74,6 +74,33 @@ describe Munger::Data do
     @data.data.first['col2'].should eql(2)
   end
   
+  it "should be able to merge data based on a common column like a sql join" do
+    first_data = Munger::Data.new(:data => [
+        {:common_key => '1', :in_first => 'a'},
+        {:common_key => '2', :in_first => 'b'}
+      ]
+    )
+    second_data = Munger::Data.new(:data => [
+        {:common_key => '1', :in_second => 'c'}
+      ]
+    )
+    
+    first_data.merge_data(second_data, :common_key)
+    first_data.columns.should eql([:common_key, :in_first, :in_second])
+
+    first_data.size.should eql(2)
+    
+    merged_item = first_data.data[0]
+    merged_item[:common_key].should eql('1')
+    merged_item[:in_first].should eql('a')
+    merged_item[:in_second].should eql('c')
+
+    second_merged_item = first_data.data[1]
+    second_merged_item[:common_key].should eql('2')
+    second_merged_item[:in_first].should eql('b')
+    second_merged_item[:in_second].should eql(nil)
+  end
+  
   it "should be able to transform a column" do
     @data.data.first[:age].should eql(23)
     @data.transform_column(:age) { |c| c.age * 2 }

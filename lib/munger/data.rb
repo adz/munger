@@ -70,6 +70,21 @@ module Munger #:nodoc:
     alias :transform_column :add_column
     alias :transform_columns :add_column
     
+    
+    # Merge another data into this one 
+    # based on the common merge_column(s)
+    def merge_data(data_to_append, merge_columns)
+      merge_columns = Data.array(merge_columns)
+      new_cols = data_to_append.columns - merge_columns
+
+      add_columns(new_cols) do |original_row|
+        row_to_append = data_to_append.data.detect{|r|
+          r.to_hash.values_at(*merge_columns) == original_row.to_hash.values_at(*merge_columns)
+        }
+        (row_to_append || {}).to_hash.values_at(*new_cols)
+      end
+    end
+
     def clean_data(hash_or_ar)
       if hash_or_ar.is_a? Hash
         return Item.ensure(hash_or_ar)
