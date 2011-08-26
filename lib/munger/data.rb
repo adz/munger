@@ -107,12 +107,70 @@ module Munger #:nodoc:
       @data = new_data
     end
     
+    class AggregateGrouping      
+      def initialize(group_cols, cols)
+        @group_cols = Data.array(group_cols)
+        @cols = Data.array(cols)
+        @aggregates = {}
+      end
+      
+      def <<(row)
+        @aggregates[key_for(row)] ||= Aggregate.new(@cols)
+        @aggregates[key_for(row)] << row
+      end
+      
+      def each
+        @aggregates.each do |key, aggregate|
+          yield key, aggregate
+        end
+      end
+      
+      private
+      def key_for(row)
+        row.values_at(*@group_cols)
+      end
+    end
+    
+    class Aggregate
+      attr_accessor :row, :count, :cells
+      
+      def initialize(cols)
+        @cols = cols
+        
+        @cells = {}
+        @cols.each do |col|
+          @cells[col] = []
+        end
+        @row = {}  # last hit row
+        @count = 0
+      end
+      
+      def <<(row)
+        @row = row  # wipes out anything from before!
+        @count += 1
+        @cols.each do |col|
+          @cells[col] << row[col]
+        end
+      end
+      
+      def sum_of(col)
+        @cells[col].inject { |sum, a| sum + a }
+      end
+      
+      def average_of(col)
+        sum_of(col) / @count
+      end
+    end
+    
     # Group the data like sql
     # 
+    # Note: 
+    # Field values for non-grouped columns will be the last row iterated on
+    # 
     # Returns columns of new data
-    def group(groups, agg_hash = {})
-      data_hash = {}
+    def group(group_cols, agg_hash = {})
       
+      # Agg columns come from values in agg_hash
       agg_columns = []
       agg_hash.each do |key, columns|
         Data.array(columns).each do |col|  # column name
@@ -121,47 +179,53 @@ module Munger #:nodoc:
       end
       agg_columns = agg_columns.uniq.compact
       
+      aggregate_group = AggregateGrouping.new(group_cols, agg_columns)
+      
+      # Build aggregate into aggregate_group for each row
       @data.each do |row|
-        row_key = Data.array(groups).map { |rk| row[rk] }
-        data_hash[row_key] ||= {:cells => {}, :data => {}, :count => 0}
-        focus = data_hash[row_key]
-        focus[:data] = clean_data(row)
-        
-        agg_columns.each do |col|
-          focus[:cells][col] ||= []
-          focus[:cells][col] << row[col]
-        end
-        focus[:count] += 1
+        aggregate_group << row       
       end
             
       new_data = []
       new_keys = []
       
-      data_hash.each do |row_key, data|
-        new_row = data[:data]
+      aggregate_group.each do |group_values, aggregate|
+        new_row = aggregate.row
+        
         agg_hash.each do |key, columns|
+          
           Data.array(columns).each do |col|  # column name
+            
             newcol = ''
+            
+            # If aggregates given like this:
+            #   {[:prefix, lambda{|values| does_something_to(values)] => [:field_one, :field_two], ...}
             if key.is_a?(Array) && key[1].is_a?(Proc)
               newcol = key[0].to_s + '_' + col.to_s
-              new_row[newcol] = key[1].call(data[:cells][col])
-            else  
+              new_row[newcol] = key[1].call(aggregate.cells[col])
+              
+            # Else, expect:
+            #   {:sum => [:field_one, :field_two], ... }
+            else
               newcol = key.to_s + '_' + col.to_s
-              case key
-              when :average
-                sum = data[:cells][col].inject { |sum, a| sum + a }
-                new_row[newcol] = (sum / data[:count])  
-              when :count
-                new_row[newcol] = data[:count]  
-              else            
-                new_row[newcol] = data[:cells][col].inject { |sum, a| sum + a }
-              end
+              new_row[newcol] = 
+                case key
+                when :average then aggregate.average_of(col)
+                when :count then aggregate.count
+                else            
+                  aggregate.sum_of(col)
+                end
             end
+            
             new_keys << newcol
+            
           end
         end
+        
         new_data << Item.ensure(new_row)
+        
       end
+    
       
       @data = new_data
       new_keys.compact
