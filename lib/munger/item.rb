@@ -1,5 +1,9 @@
 module Munger #:nodoc:
-  
+
+  # Like a hash, but only allows simple access via [], or []=
+  # ...but adds:
+  #  * Indifferent access
+  #  * Method access and assign
   class Item
     
     attr_reader :data
