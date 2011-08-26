@@ -92,6 +92,10 @@ module Munger #:nodoc:
       end
     end
 
+    def exclude_columns(*cols)
+      @columns = columns - Data.array(cols)
+    end
+    
     def column_title(column)
       if c = @column_titles[column]
         return c.to_s
