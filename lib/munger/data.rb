@@ -126,8 +126,8 @@ module Munger #:nodoc:
       end
       
       private
-      def key_for(row)
-        row.values_at(*@group_cols)
+      def key_for(row) 
+        @group_cols.map{|col| row[col] }
       end
     end
     
