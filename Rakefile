@@ -2,7 +2,7 @@ require 'rubygems'
 # Gem::manage_gems
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
-require 'spec/rake/spectask'
+require 'rspec/core/rake_task'
 
 spec = eval(File.new('munger.gemspec','r').read)
 
@@ -15,19 +15,16 @@ task :default => "pkg/#{spec.name}-#{spec.version}.gem" do
 end
 
 desc 'Run specs'
-Spec::Rake::SpecTask.new do |t|
-  t.spec_opts = ['--format', 'specdoc', '--colour', '--diff']
+RSpec::Core::RakeTask.new do |t|
+  t.rspec_opts = ['--format', 'documentation', '--colour']
 end
 
-desc 'Generate coverage reports'
-Spec::Rake::SpecTask.new('spec:coverage') do |t|
-  t.rcov = true
-end
+# Get rcov for 1.9 working... or simplecov
+#desc 'Generate coverage reports'
+#RSpec::Core::RakeTask.new('spec:coverage') do |t|
+#  t.rcov = true
+#end
 
-desc 'Generate a nice HTML report of spec results'
-Spec::Rake::SpecTask.new('spec:report') do |t|
-  t.spec_opts = ['--format', 'html:report.html', '--diff']
-end
 
 task :doc => [:rdoc]
 namespace :doc do

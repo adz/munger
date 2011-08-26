@@ -1,14 +1,13 @@
 require File.expand_path(File.dirname(__FILE__) + "/../lib/munger")
 
 require 'rubygems'
-require 'spec'
 require 'fileutils'
 require 'logger'
 require 'pp'
 require 'date'
 
 require 'rspec_hpricot_matchers'
-Spec::Runner.configure do |config|
+RSpec.configure do |config|
   config.include(RspecHpricotMatchers)
 end
 
